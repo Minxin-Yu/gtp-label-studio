@@ -10,7 +10,9 @@ import { modal } from '../../../components/Modal/Modal';
 import { useAPI } from '../../../providers/ApiProvider';
 import { ProjectContext } from '../../../providers/ProjectProvider';
 import { MachineLearningList } from './MachineLearningList';
+import { ConfigData } from './ConfigData';
 import './MachineLearningSettings.styl';
+import { Dropdown, Menu, Pagination, Userpic } from '../../../components';
 
 export const MachineLearningSettings = () => {
   const api = useAPI();
@@ -18,6 +20,9 @@ export const MachineLearningSettings = () => {
   const [mlError, setMLError] = useState();
   const [backends, setBackends] = useState([]);
   const [versions, setVersions] = useState([]);
+  const [getConfigs, setGetConfigs] = useState(false);
+  const [configs, setConfigs] = useState([]);
+  const [taskCount, setTaskCount] = useState(0);
 
   const resetMLVersion = useCallback(async (e) => {
     e.preventDefault();
@@ -58,6 +63,26 @@ export const MachineLearningSettings = () => {
     setVersions(versions);
   }, [api, project.id]);
 
+  const getConfig = useCallback(async (backend) => {
+    const models = await api.callApi('mlBackends', {
+      params: {
+        project: project.id,
+      },
+    });
+
+    const config = await api.callApi('config', {
+      params: {
+        pk: models[0].id,
+        project: project.id,
+      },
+    });
+
+    if (config) {
+      setConfigs(config);
+      setGetConfigs(true);
+    }
+  }, [api, project, setBackends]);
+
   const showMLFormModal = useCallback((backend) => {
     const action = backend ? "updateMLBackend" : "addMLBackend";
 
@@ -78,15 +103,15 @@ export const MachineLearningSettings = () => {
             }
           }}
         >
-          <Input type="hidden" name="project" value={project.id}/>
+          <Input type="hidden" name="project" value={project.id} />
 
           <Form.Row columnCount={2}>
-            <Input name="title" label="Title" placeholder="ML Model"/>
-            <Input name="url" label="URL" required/>
+            <Input name="title" label="Title" placeholder="ML Model" />
+            <Input name="url" label="URL" required />
           </Form.Row>
 
           <Form.Row columnCount={1}>
-            <TextArea name="description" label="Description" style={{ minHeight: 120 }}/>
+            <TextArea name="description" label="Description" style={{ minHeight: 120 }} />
           </Form.Row>
 
           <Form.Row columnCount={1}>
@@ -110,12 +135,12 @@ export const MachineLearningSettings = () => {
                     detail: `Failed to ${backend ? 'save' : 'add new'} ML backend.`,
                     exc_info: response.error_message,
                   },
-                }}/>
+                }} />
               )}
             </>
           )}</Form.ResponseParser>
 
-          <InlineError/>
+          <InlineError />
         </Form>
       ),
     };
@@ -127,6 +152,7 @@ export const MachineLearningSettings = () => {
     if (project.id) {
       fetchBackends();
       fetchMLVersions();
+      getConfig();
     }
   }, [project]);
 
@@ -144,7 +170,7 @@ export const MachineLearningSettings = () => {
         Add Model
       </Button>
 
-      <Divider height={32}/>
+      <Divider height={32} />
 
       <Form action="updateProject"
         formData={{ ...project }}
@@ -153,7 +179,7 @@ export const MachineLearningSettings = () => {
         autosubmit
       >
         <Form.Row columnCount={1}>
-          <Label text="ML-Assisted Labeling" large/>
+          <Label text="ML-Assisted Labeling" large />
 
           <div style={{ paddingLeft: 16 }}>
             <Toggle
@@ -212,6 +238,64 @@ export const MachineLearningSettings = () => {
         fetchBackends={fetchBackends}
         backends={backends}
       />
+      
+      <ConfigData
+        config={configs}
+        taskCount={taskCount * 5}
+      />
+      <ConfigData
+        config={configs}
+        taskCount={(taskCount * 5) + 1}
+      />
+      <ConfigData
+        config={configs}
+        taskCount={(taskCount * 5) + 2}
+      />
+      <ConfigData
+        config={configs}
+        taskCount={(taskCount * 5) + 3}
+      />
+      <ConfigData
+        config={configs}
+        taskCount={(taskCount * 5) + 4}
+      />
+
+      {getConfigs
+        ? (
+          <div>
+            {taskCount > 0
+              ? (
+                <button onClick={() => {
+                  if (taskCount > 0) {
+                    const newTaskCount = taskCount - 1;
+
+                    setTaskCount(newTaskCount);
+                  }
+                }}>Last 5 Task</button>
+              ) 
+              : null}
+            <input value={taskCount + 1} onChange={(event)=>{
+              if(event.target.value >= 0 && event.target.value <= configs.taskTotal - 1 && event.target.value){
+                setTaskCount(event.target.value - 1);
+              }
+            }}></input>
+            <text>/{~ ~ (configs.taskTotal / 5) + 1}</text>
+            {taskCount < (configs.taskTotal / 5) - 1
+              ?(
+                <button onClick={() => {
+                  if (taskCount < (configs.taskTotal / 5) - 1) {
+                    const newTaskCount = taskCount + 1;
+
+                    setTaskCount(newTaskCount);
+                  }
+                  
+                }}>Next 5 Task</button>
+              )
+              :null
+            }
+          </div>
+        ) 
+        : null}
     </>
   );
 };

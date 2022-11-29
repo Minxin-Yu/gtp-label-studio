@@ -147,6 +147,25 @@ class TaskValidator:
         if self.check_allowed(task):
             # task[data]
             self.raise_if_wrong_class(task, 'data', (dict, list))
+
+            if task['data'] is None:
+                raise ValidationError('Task is empty (None)')
+
+            replace_task_data_undefined_with_config_field(task['data'], self.project)
+
+            for data_key,data_type in self.project.data_types.items():
+                # get array name in case of Repeater tag
+                is_array = '[' in data_key
+                data_key = data_key.split('[')[0]
+
+                if data_key not in task['data']:
+                    newData = {}
+                    newData[data_key] = task['data']
+                    print(newData)
+                    task['data'] = newData
+                    print(task['data'])
+
+
             self.check_data_and_root(self.project, task['data'])
 
             # task[annotations]: we can't use AnnotationSerializer for validation
