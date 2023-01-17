@@ -4,9 +4,22 @@ import { ServicesCard } from "./ServicesCard";
 import SERVICES from "../../config/CentralApi";
 import { Button } from '../../components';
 
+const usePrevious = (value) => {
+  const ref = React.useRef()
+
+  useEffect(() => {
+    ref.current = value
+  }, [value])
+
+  return ref.current;
+}
+
 export const ServicesPage = () => {
   const [data, setData] = useState([]);
   const [count, setCount] = useState(0);
+  const prevData = usePrevious(data);
+
+  console.log('equaulll: ', JSON.stringify(data) === JSON.stringify(prevData))
 
   const handleGetData = () => {
     console.log('handleGetData');
@@ -21,10 +34,11 @@ export const ServicesPage = () => {
     fetch(SERVICES.LIST_SERVICE_INFOS)
       .then((res) => res.json())
       .then((data) => {
-        setData(data);
-        console.log('auto refresh:'+count);
+        setData(() => data);
+        // setData(data);
+        console.log('auto refresh:' + count);
       });
-  }, [count]);
+  }, []);
 
   useEffect(() => {
     getService();
@@ -34,7 +48,7 @@ export const ServicesPage = () => {
     }, 10000);
     
     return () => clearInterval(timer);
-  }, [count]);
+  }, [count, getService]);
 
   return (
     <div>

@@ -6,7 +6,7 @@ import { Button } from '../../components';
 import SERVICES from "../../config/CentralApi";
 
 
-export function ServicesCard(service) {
+export function ServicesCard(props) {
   let taskLists = '';
 
   const handleStart = (id) => {
@@ -39,30 +39,29 @@ export function ServicesCard(service) {
       .then(res => console.log(res));
   };
 
-  if (service.service.services) {
-    taskLists = service.service.services.map((task) =>
+  if (props.service.services) {
+    taskLists = props.service.services.map((task) =>
       <li key={task.taskId}>{task.taskId}</li>,
     );
   }
-
-  console.log(service);
+  
   return (
     <div>
-      <Card style={{ marginTop: 0 }} header={service.service.name}
+      <Card style={{ marginTop: 0 }} header={props.service.name}
       >
         <DescriptionList className={cn('ml').elem('summary')}>
           <DescriptionList.Item term="Action">
-            <Button onClick={() => handleStart(service.service.id)}>Start</Button>
-            <Button onClick={() => handleRestart(service.service.id)}>Restart</Button>
-            <Button onClick={() => handleDelete(service.service.id)}>Delete</Button>
+            <Button onClick={() => handleStart(props.service.id)}>Start</Button>
+            <Button onClick={() => handleRestart(props.service.id)}>Restart</Button>
+            <Button onClick={() => handleDelete(props.service.id)}>Delete</Button>
           </DescriptionList.Item>
 
           <DescriptionList.Item term="Running/Replicas">
-            {service.service.running}/{service.service.replicas}
+            {props.service.running}/{props.service.replicas}
           </DescriptionList.Item>
 
           <DescriptionList.Item term="Description">
-            {service.service.description}
+            {props.service.description}
           </DescriptionList.Item>
 
           <DescriptionList.Item term="Task">

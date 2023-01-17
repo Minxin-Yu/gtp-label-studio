@@ -238,7 +238,7 @@ export const MachineLearningSettings = () => {
         fetchBackends={fetchBackends}
         backends={backends}
       />
-      
+
       <ConfigData
         config={configs}
         taskCount={taskCount * 5}
@@ -272,29 +272,29 @@ export const MachineLearningSettings = () => {
                     setTaskCount(newTaskCount);
                   }
                 }}>Last 5 Task</button>
-              ) 
+              )
               : null}
-            <input value={taskCount + 1} onChange={(event)=>{
-              if(event.target.value >= 0 && event.target.value <= configs.taskTotal - 1 && event.target.value){
+            <input value={taskCount + 1} onChange={(event) => {
+              if (event.target.value >= 0 && event.target.value <= configs.taskTotal - 1 && event.target.value) {
                 setTaskCount(event.target.value - 1);
               }
             }}></input>
-            <text>/{~ ~ (configs.taskTotal / 5) + 1}</text>
+            /{~ ~ (configs.taskTotal / 5) + 1}
             {taskCount < (configs.taskTotal / 5) - 1
-              ?(
+              ? (
                 <button onClick={() => {
                   if (taskCount < (configs.taskTotal / 5) - 1) {
                     const newTaskCount = taskCount + 1;
 
                     setTaskCount(newTaskCount);
                   }
-                  
+
                 }}>Next 5 Task</button>
               )
-              :null
+              : null
             }
           </div>
-        ) 
+        )
         : null}
     </>
   );
